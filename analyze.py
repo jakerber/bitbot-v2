@@ -3,6 +3,8 @@ import constants
 import ema
 import gemini
 
+ROUND_DECIMALS = 5
+
 def analyze():
     """Analyze Bitcoin price to determine trades.
 
@@ -31,13 +33,13 @@ def analyze():
 
     # buy if ask is some SD multiplier below EMA
     if currentAsk <= currentEma - (currentEmsd * constants.TRADE_SD_THRESHOLD):
-        amount = constants.TRADE_AMOUNT_USD / currentAsk
+        amount = round(constants.TRADE_AMOUNT_USD / currentAsk, ROUND_DECIMALS)
         gemini.buy(amount, currentAsk)  # execute trade
         summary['action'] = f'buy {amount} @ {currentAsk}'
 
     # sell if bid is some SD multiplier above EMA
     if currentBid >= currentEma + (currentEmsd * constants.TRADE_SD_THRESHOLD):
-        amount = constants.TRADE_AMOUNT_USD / currentBid
+        amount = round(constants.TRADE_AMOUNT_USD / currentBid, ROUND_DECIMALS)
         gemini.sell(amount, currentBid)  # execute trade
         summary['action'] = f'sell {amount} @ {currentBid}'
 
