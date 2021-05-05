@@ -1,11 +1,14 @@
 """BitBot runner module."""
+import analyze
+import constants
 import time
 
 def run():
     """Run BitBot."""
     while True:
-        print("Hello, world!")
-        time.sleep(1)
+        report = analyze.analyze()
+        print(report)
+        time.sleep(constants.INTERVAL_SEC)
 
 
 if __name__ == '__main__':

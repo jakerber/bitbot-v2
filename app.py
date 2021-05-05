@@ -4,11 +4,11 @@ import flask
 # initialize flask app
 app = flask.Flask(__name__)
 
-@app.route("/")
+@app.route('/')
 def root():
     """Root API endpoint."""
-    return "Hello, world!"
+    return 'Bleep bloop'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)

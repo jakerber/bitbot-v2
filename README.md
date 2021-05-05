@@ -1,2 +1,2 @@
 # BitBot v2
-New and improved cryptocurrency trading bot.
+New and improved Bitcoin trading bot.
