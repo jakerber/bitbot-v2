@@ -1,0 +1,2 @@
+# bitbot
+Cryptocurrency trading bot.
