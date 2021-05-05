@@ -32,15 +32,13 @@ def analyze():
     # buy if ask is some SD multiplier below EMA
     if currentAsk <= currentEma - (currentEmsd * constants.TRADE_SD_THRESHOLD):
         amount = constants.TRADE_AMOUNT_USD / currentAsk
-        gemini.buy(amount)  # execute trade
-        summary['action'] = 'buy'
-        summary['amount'] = amount
+        gemini.buy(amount, currentAsk)  # execute trade
+        summary['action'] = f'buy {amount} @ {currentAsk}'
 
     # sell if bid is some SD multiplier above EMA
     if currentBid >= currentEma + (currentEmsd * constants.TRADE_SD_THRESHOLD):
         amount = constants.TRADE_AMOUNT_USD / currentBid
-        gemini.sell(amount)  # execute trade
-        summary['action'] = 'sell'
-        summary['amount'] = amount
+        gemini.sell(amount, currentBid)  # execute trade
+        summary['action'] = f'sell {amount} @ {currentBid}'
 
     return summary

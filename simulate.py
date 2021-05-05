@@ -35,10 +35,10 @@ PRICE_HISTORY_BTC = PRICE_HISTORY_BTC
 STARTING_BTC_PRICE = PRICE_HISTORY_BTC[STARTING_HOUR]
 
 # mock trading methods
-def mockBuy(amount):
+def mockBuy(amount, _):
     """Simulate buying Bitcoin.
 
-    :amount: amount to buy
+    :param amount: amount to buy
     """
     global ACCOUNT_USD
     global ACCOUNT_BTC
@@ -46,10 +46,10 @@ def mockBuy(amount):
         ACCOUNT_USD -= constants.TRADE_AMOUNT_USD * (1 + GIMINI_FEES)
         ACCOUNT_BTC += amount
 
-def mockSell(amount):
+def mockSell(amount, _):
     """Simulate selling Bitcoin.
 
-    :amount: amount to sell
+    :param amount: amount to sell
     """
     global ACCOUNT_USD
     global ACCOUNT_BTC
