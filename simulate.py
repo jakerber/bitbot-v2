@@ -3,6 +3,12 @@ import constants
 import gemini
 import run
 import sys
+import time
+
+# override constants
+constants.TRADE_AMOUNT_USD = 100.0
+constants.TRADE_INTERVAL_SEC = 0
+constants.TRADE_SD_THRESHOLD = 2.0
 
 # simulation constants
 STARTING_ACCOUNT_USD = 1000
@@ -17,7 +23,7 @@ STARTING_HOUR = int(sys.argv[1]) if len(sys.argv) > 1 else STARTING_HOUR
 # initialize simulation
 ACCOUNT_USD = STARTING_ACCOUNT_USD
 ACCOUNT_BTC = STARTING_ACCOUNT_BTC
-CURRENT_HOUR = 0
+CURRENT_HOUR = STARTING_HOUR
 
 # load historical price data
 PRICE_HISTORY_BTC = []
@@ -27,11 +33,6 @@ with open('datasets/btc_history.csv') as file:
         PRICE_HISTORY_BTC.append(float(price.strip()))
 PRICE_HISTORY_BTC = PRICE_HISTORY_BTC
 STARTING_BTC_PRICE = PRICE_HISTORY_BTC[STARTING_HOUR]
-
-# mock constants
-constants.TRADE_AMOUNT_USD = 100.0
-constants.TRADE_INTERVAL_SEC = 0
-constants.TRADE_SD_THRESHOLD = 2.0
 
 # mock trading methods
 def mockBuy(amount):
@@ -67,12 +68,28 @@ def mockGetPrice():
 
     :returns: price information as json
     """
+    # calculate simulated prices
+    currentPrice = PRICE_HISTORY_BTC[CURRENT_HOUR]
+    currentAsk = currentPrice + (currentPrice * ASK_BID_DIFF)
+    currentBid = currentPrice - (currentPrice * ASK_BID_DIFF)
+    last24Prices = PRICE_HISTORY_BTC[CURRENT_HOUR - 24:CURRENT_HOUR]
+
+    # simulated Bitcoin price information
+    return {
+        'ask': currentAsk,
+        'bid': currentBid,
+        'changes': last24Prices,
+    }
+
+gemini.getPrice = mockGetPrice
+
+# mock time passing.
+def mockSleep(_):
+    """Simulate the passage of time."""
     global CURRENT_HOUR
 
     # increment simulated time
     CURRENT_HOUR += 1
-    if CURRENT_HOUR < STARTING_HOUR:
-        CURRENT_HOUR = STARTING_HOUR
 
     # end simulation if max time exceeded
     # display results and exit
@@ -88,20 +105,7 @@ def mockGetPrice():
     # display simulated time
     sys.stdout.write(f'hour {CURRENT_HOUR}/{len(PRICE_HISTORY_BTC)}: ')
 
-    # calculate simulated prices
-    currentPrice = PRICE_HISTORY_BTC[CURRENT_HOUR]
-    currentAsk = currentPrice + (currentPrice * ASK_BID_DIFF)
-    currentBid = currentPrice - (currentPrice * ASK_BID_DIFF)
-    last24Prices = PRICE_HISTORY_BTC[CURRENT_HOUR - 24:CURRENT_HOUR]
-
-    # simulated Bitcoin price information
-    return {
-        'ask': currentAsk,
-        'bid': currentBid,
-        'changes': last24Prices,
-    }
-
-gemini.getPrice = mockGetPrice
+time.sleep = mockSleep
 
 # run simulation
 run.run()
