@@ -6,7 +6,7 @@ import sys
 
 # simulation constants
 STARTING_ACCOUNT_USD = 1000
-STARTING_ACCOUNT_BTC = 4.1
+STARTING_ACCOUNT_BTC = 0.05
 STARTING_HOUR = 24  # begin 24 hours into the simulation
 ASK_BID_DIFF = 0.00004
 GIMINI_FEES = 0.00450
@@ -29,8 +29,9 @@ PRICE_HISTORY_BTC = PRICE_HISTORY_BTC
 STARTING_BTC_PRICE = PRICE_HISTORY_BTC[STARTING_HOUR]
 
 # mock constants
-constants.INTERVAL_SEC = 0
-constants.TRADE_AMOUNT_USD = 100
+constants.TRADE_AMOUNT_USD = 100.0
+constants.TRADE_INTERVAL_SEC = 0
+constants.TRADE_SD_THRESHOLD = 2.0
 
 # mock trading methods
 def mockBuy(amount):

@@ -8,7 +8,7 @@ def run():
     while True:
         report = analyze.analyze()
         print(report)
-        time.sleep(constants.INTERVAL_SEC)
+        time.sleep(constants.TRADE_INTERVAL_SEC)
 
 
 if __name__ == '__main__':
