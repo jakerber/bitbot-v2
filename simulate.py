@@ -5,10 +5,11 @@ import run
 import sys
 
 # simulation constants
-STARTING_ACCOUNT_USD = 10000
-STARTING_ACCOUNT_BTC = 40
+STARTING_ACCOUNT_USD = 1000
+STARTING_ACCOUNT_BTC = 0.02
 STARTING_HOUR = 24  # begin 24 hours into the simulation
 ASK_BID_DIFF = 0.00004
+GIMINI_FEES = 0.00450
 
 # override starting hour if user provided a value
 STARTING_HOUR = int(sys.argv[1]) if len(sys.argv) > 1 else STARTING_HOUR
@@ -29,7 +30,7 @@ STARTING_BTC_PRICE = PRICE_HISTORY_BTC[STARTING_HOUR]
 
 # mock constants
 constants.INTERVAL_SEC = 0
-constants.TRADE_AMOUNT_USD = 100
+constants.TRADE_AMOUNT_USD = 250
 
 # mock trading methods
 def mockBuy(amount):
@@ -40,7 +41,7 @@ def mockBuy(amount):
     global ACCOUNT_USD
     global ACCOUNT_BTC
     if ACCOUNT_USD > constants.TRADE_AMOUNT_USD:
-        ACCOUNT_USD -= constants.TRADE_AMOUNT_USD
+        ACCOUNT_USD -= constants.TRADE_AMOUNT_USD * (1 + GIMINI_FEES)
         ACCOUNT_BTC += amount
 
 def mockSell(amount):
@@ -51,7 +52,7 @@ def mockSell(amount):
     global ACCOUNT_USD
     global ACCOUNT_BTC
     if ACCOUNT_BTC > amount:
-        ACCOUNT_USD += constants.TRADE_AMOUNT_USD
+        ACCOUNT_USD += constants.TRADE_AMOUNT_USD * (1 - GIMINI_FEES)
         ACCOUNT_BTC -= amount
 
 gemini.buy = mockBuy
