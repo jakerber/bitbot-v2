@@ -6,7 +6,7 @@ import sys
 
 # simulation constants
 STARTING_ACCOUNT_USD = 1000
-STARTING_ACCOUNT_BTC = 0.02
+STARTING_ACCOUNT_BTC = 4.1
 STARTING_HOUR = 24  # begin 24 hours into the simulation
 ASK_BID_DIFF = 0.00004
 GIMINI_FEES = 0.00450
@@ -30,7 +30,7 @@ STARTING_BTC_PRICE = PRICE_HISTORY_BTC[STARTING_HOUR]
 
 # mock constants
 constants.INTERVAL_SEC = 0
-constants.TRADE_AMOUNT_USD = 250
+constants.TRADE_AMOUNT_USD = 100
 
 # mock trading methods
 def mockBuy(amount):
@@ -83,7 +83,6 @@ def mockGetPrice():
         print(f'ending btc: {ACCOUNT_BTC} (${round(ACCOUNT_BTC * endingBTCPrice, 2)})')
         print(f'ending usd: {ACCOUNT_USD}')
         sys.exit(0)
-
 
     # display simulated time
     sys.stdout.write(f'hour {CURRENT_HOUR}/{len(PRICE_HISTORY_BTC)}: ')
