@@ -1,4 +1,4 @@
-"""BitBot core price analysis module."""
+"""Cryptocurrency arbitrage module."""
 import constants
 import threading
 from exchanges import gemini
@@ -14,13 +14,13 @@ PRICE_PRECISION = 1
 class Arbitrage:
     """Arbitrage trade class."""
 
-    def __init__(self, coin, exchangeAsk, askPrice, exchangeBid, bidPrice):
+    def __init__(self, coin, exchangeAsk, askPrice, exchangeBid, bidPrice, gain):
         self.coin = coin
         self.exchangeAsk = exchangeAsk
         self.askPrice = round(askPrice, PRICE_PRECISION)
         self.exchangeBid = exchangeBid
         self.bidPrice = round(bidPrice, PRICE_PRECISION)
-        self.gain = round((self.bidPrice - self.askPrice) / self.askPrice, 4)
+        self.gain = gain
 
     def execute(self):
         """Execute trades in seperate threads."""
@@ -37,8 +37,8 @@ class Arbitrage:
         return f'{self.coin}: {buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice}'
 
 
-def detect():
-    """Detect arbitrage opportunities across exchanges.
+def execute():
+    """Execute arbitrage across exchanges.
 
     :return: report of analysis as dict
     """
@@ -57,21 +57,25 @@ def detect():
             for coin, price in exchangePrices.items():
                 prices[coin][exchange] = price
 
-    # determine if any arbitrage opportunities (ask < bid)
+    # detect arbitrage opportunities (ask < bid)
     arbitrages = []
     for coin, exchanges in prices.items():
         for exchangeA, pricesA in exchanges.items():
             for exchangeB, pricesB in exchanges.items():
                 if exchangeA == exchangeB:
                     continue
-                if pricesA.get('ask') < pricesB.get('bid'):
+
+                # determine if trade is profitable
+                unrealizedGain = round((pricesB.get('bid') - pricesA.get('ask')) / pricesA.get('ask'), 4)
+                if pricesA.get('ask') < pricesB.get('bid') and unrealizedGain >= constants.TRADE_ARBITRAGE_THRESHOLD:
                     arbitrage = Arbitrage(coin,
                                           exchangeA,
                                           pricesA.get('ask'),
                                           exchangeB,
-                                          pricesB.get('bid'))
+                                          pricesB.get('bid'),
+                                          unrealizedGain)
 
-                    # execute arbitrage trade
+                    # execute arbitrage
                     try:
                         arbitrage.execute()
                     except RuntimeError as error:

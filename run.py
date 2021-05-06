@@ -7,7 +7,7 @@ import time
 def run():
     """Run BitBot."""
     while True:
-        report = arbitrage.detect()
+        report = arbitrage.execute()
         print(json.dumps(report, indent=2))
         time.sleep(constants.TRADE_INTERVAL_SEC)
 
