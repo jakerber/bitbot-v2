@@ -39,7 +39,6 @@ class Arbitrage:
         sellName = type(self.exchangeBid).__name__
         return f'{buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice}'
 
-
 def execute():
     """Execute arbitrage across exchanges.
 

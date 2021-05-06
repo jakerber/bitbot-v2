@@ -1,4 +1,5 @@
 # Custom ignores
+notes.txt
 _test.py
 
 # Byte-compiled / optimized / DLL files

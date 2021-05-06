@@ -7,6 +7,7 @@ ALLOW_TRADING = os.getenv('ALLOW_TRADING') == 'True'
 API_DELAY_SEC = 0.1
 SUPPORTED_COINS = [
     'bitcoin',
+    # TODO: re-enable once balance sufficient
     # 'ethereum',
     # 'litecoin'
 ]
