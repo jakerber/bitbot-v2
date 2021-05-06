@@ -1,4 +1,4 @@
 Flask==1.1.2
 gunicorn==20.0.4
-pandas==1.0.3
+krakenex==2.1.0
 requests==2.22.0

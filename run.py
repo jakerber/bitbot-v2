@@ -1,13 +1,14 @@
 """BitBot runner module."""
-import analyze
+import arbitrage
 import constants
+import json
 import time
 
 def run():
     """Run BitBot."""
     while True:
-        report = analyze.analyze()
-        print(report)
+        report = arbitrage.detect()
+        print(json.dumps(report, indent=2))
         time.sleep(constants.TRADE_INTERVAL_SEC)
 
 
