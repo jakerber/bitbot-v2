@@ -103,7 +103,7 @@ def execute():
         for coin, balance in exchange.balances.items():
             balances[coin] += balance
 
-    return {'arbitrage': arbitrageReport,
-            'balance': balances,
-            'price': priceReport,
+    return {'arbitrages': arbitrageReport,
+            'balances': balances,
+            'prices': priceReport,
             'datetime': str(datetime.datetime.utcnow())}

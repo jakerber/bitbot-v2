@@ -3,19 +3,24 @@ import os
 
 # global variables
 PROD_ENV = os.getenv('PROD_ENV') == 'True'
-ALLOW_TRADING = os.getenv('ALLOW_TRADING') == 'True'
-API_DELAY_SEC = 1.0
 SUPPORTED_COINS = [
     'bitcoin',
     # TODO: re-enable once balance sufficient
     # 'ethereum',
     # 'litecoin'
 ]
+ALLOW_TRADING = os.getenv('ALLOW_TRADING') == 'True'
+API_DELAY_SEC = 1.0
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
 
 # trading parameters
 TRADE_AMOUNT_USD = float(os.getenv('TRADE_AMOUNT_USD'))
 TRADE_ARBITRAGE_THRESHOLD = float(os.getenv('TRADE_ARBITRAGE_THRESHOLD'))
 TRADE_INTERVAL_SEC = int(os.getenv('TRADE_INTERVAL_SEC'))
+
+# Mailgun email alerts
+MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY')
+MAILGUN_DOMAIN = os.getenv('MAILGUN_DOMAIN')
 
 # Gemini API
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
