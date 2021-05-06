@@ -54,7 +54,6 @@ class Gemini(common.ExchangeBase):
         for ticker, coin in constants.GEMINI_TICKER_TO_COIN.items():
             if coin in constants.SUPPORTED_COINS or coin == 'dollar':
                 balances[coin] = float(balanceInfo.get(ticker, 0.0))
-                self.throttle()
         return balances
 
     def price(self, coin):
@@ -129,6 +128,7 @@ class Gemini(common.ExchangeBase):
         :param response: request response
         :raises: RuntimeError if request failed
         """
+        super().handle(endpoint, response)
         if response.status_code != 200:  # 200 OK status
             reason = response.json().get('reason', '<None>')
             message = response.json().get('message', '<None>')

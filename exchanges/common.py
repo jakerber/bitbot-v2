@@ -1,5 +1,6 @@
 """Common exchange module."""
 import constants
+import datetime
 import time
 
 class ExchangeBase:
@@ -65,7 +66,8 @@ class ExchangeBase:
         :param response: request response
         :raises: RuntimeError if request failed
         """
-        raise NotImplementedError
+        if not constants.PROD_ENV:
+            print(f'{str(datetime.datetime.utcnow())}: {type(self).__name__} executed {endpoint}')
 
     def throttle(self):
         """Pause to avoid getting throttled."""

@@ -31,7 +31,6 @@ class Arbitrage:
                          args=(self.coin, tradeAmount, self.askPrice)).start()
         threading.Thread(target=self.exchangeBid.sell,
                          args=(self.coin, tradeAmount, self.bidPrice)).start()
-        time.sleep(constants.API_DELAY_SEC)  # avoid duplicate nonce
 
     def __str__(self):
         """String representation of object."""
@@ -44,64 +43,66 @@ def execute():
 
     :return: report of analysis as dict
     """
-    prices = {coin: {} for coin in constants.SUPPORTED_COINS}
+    prices = {}
+    balances = {'dollar': 0.0}
     priceReport = {}
-    for exchange in EXCHANGES:
-        exchangeName = type(exchange).__name__
+    arbitrageReport = {}
 
-        # safely fetch prices
-        try:
-            exchangePrices = exchange.prices
-        except RuntimeError as error:
-            print(f'{exchangeName} failed to fetch prices: {repr(error)}')
+    # collect prices by coin and exchange
+    for coin in constants.SUPPORTED_COINS:
+        prices[coin] = {}
+        balances[coin] = 0.0
+        priceReport[coin] = []
+        arbitrageReport[coin] = []
+        for exchange in EXCHANGES:
 
-        # collect prices by coin and exchange
-        else:
-            for coin, price in exchangePrices.items():
+            # safely fetch price
+            try:
+                price = exchange.price(coin)
+            except RuntimeError as error:
+                print(f'{exchangeName} failed to fetch {coin} price: {repr(error)}')
+            else:
                 prices[coin][exchange] = price
+                priceReport[coin].append({type(exchange).__name__: price})
 
-                # serialize exchange object
-                if coin not in priceReport:
-                    priceReport[coin] = []
-                priceReport[coin].append({exchangeName: price})
 
-    # detect arbitrage opportunities (ask < bid)
-    arbitrages = {}
-    for coin, exchanges in prices.items():
-        for exchangeA, pricesA in exchanges.items():
-            for exchangeB, pricesB in exchanges.items():
+        # detect arbitrage opportunities (ask < bid)
+        bestOp = None
+        for exchangeA, pricesA in prices[coin].items():
+            for exchangeB, pricesB in prices[coin].items():
                 if exchangeA == exchangeB:
                     continue
 
-                # determine if trade is profitable
+                # determine profitability
                 unrealizedGain = round((pricesB.get('bid') - pricesA.get('ask')) / pricesA.get('ask'), 4)
-                if pricesA.get('ask') < pricesB.get('bid') and unrealizedGain >= constants.TRADE_ARBITRAGE_THRESHOLD:
-                    arbitrage = Arbitrage(coin,
-                                          exchangeA,
-                                          pricesA.get('ask'),
-                                          exchangeB,
-                                          pricesB.get('bid'),
-                                          unrealizedGain)
+                if pricesA.get('ask') < pricesB.get('bid') and \
+                   unrealizedGain >= constants.TRADE_ARBITRAGE_THRESHOLD and \
+                   unrealizedGain > bestOp.gain:
+                    bestOp = Arbitrage(coin,
+                                       exchangeA,
+                                       pricesA.get('ask'),
+                                       exchangeB,
+                                       pricesB.get('bid'),
+                                       unrealizedGain)
 
-                    # execute arbitrage
-                    try:
-                        arbitrage.execute()
-                    except RuntimeError as error:
-                        print(f'unable to execute trade: {repr(error)}')
-                    else:
-                        if coin not in arbitrages:
-                            arbitrages[coin] = []
-                        arbitrages[coin].append(str(arbitrage))
+        # execute best arbitrage opportunity
+        if bestOp:
+            try:
+                bestOp.execute()
+            except RuntimeError as error:
+                print(f'unable to execute {coin} trade: {repr(error)}')
+            else:
+                arbitrageReport[coin].append(str(arbitrage))
+
+        # pause before moving to next coin
+        time.sleep(constants.API_DELAY_SEC)
 
     # fetch balances across exchanges
-    balances = {}
     for exchange in EXCHANGES:
         for coin, balance in exchange.balances.items():
-            if coin not in balances:
-                balances[coin] = 0.0
             balances[coin] += balance
 
-    return {'arbitrage': arbitrages,
+    return {'arbitrage': arbitrageReport,
             'balance': balances,
             'price': priceReport,
             'datetime': str(datetime.datetime.utcnow())}

@@ -41,7 +41,6 @@ class Kraken(common.ExchangeBase):
         for ticker, coin in constants.KRAKEN_TICKER_TO_COIN.items():
             if coin in constants.SUPPORTED_COINS or coin == 'dollar':
                 balances[coin] = float(response.get('result').get(ticker, 0.0))
-                self.throttle()
         return balances
 
     def price(self, coin):
@@ -112,5 +111,6 @@ class Kraken(common.ExchangeBase):
         :param response: request response
         :raises: RuntimeError if request failed
         """
+        super().handle(endpoint, response)
         if response.get('error') or 'result' not in response:
             raise RuntimeError(f'Kraken {endpoint} request failed: {response.get("error", "<unknown>")}')
