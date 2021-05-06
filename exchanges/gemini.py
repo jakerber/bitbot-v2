@@ -28,13 +28,9 @@ class Gemini(common.ExchangeBase):
         :returns: price dict in format {'bitcoin': {'ask': 101.0, 'bid': 100.0}}
         """
         prices = {}
-        endpoint = 'v2/ticker/'
         for coin in constants.SUPPORTED_COINS:
-            pair = constants.GEMINI_COIN_TO_PAIR[coin]
-            response = requests.get(BASE_URL + endpoint + pair)
-            self.handle(endpoint, response)
-            prices[coin] = {'ask': float(response.json().get('ask')),
-                            'bid': float(response.json().get('bid'))}
+            prices[coin] = self.price(coin)
+            self.throttle()
         return prices
 
     @property
@@ -58,7 +54,21 @@ class Gemini(common.ExchangeBase):
         for ticker, coin in constants.GEMINI_TICKER_TO_COIN.items():
             if coin in constants.SUPPORTED_COINS or coin == 'dollar':
                 balances[coin] = float(balanceInfo.get(ticker, 0.0))
+                self.throttle()
         return balances
+
+    def price(self, coin):
+        """Get price of individual coin.
+
+        :param coin: name of coins
+        :returns: price dict in format {'ask': 101.0, 'bid': 100.0}
+        """
+        endpoint = 'v2/ticker/'
+        pair = constants.GEMINI_COIN_TO_PAIR[coin]
+        response = requests.get(BASE_URL + endpoint + pair)
+        self.handle(endpoint, response)
+        return {'ask': float(response.json().get('ask')),
+                'bid': float(response.json().get('bid'))}
 
     def buy(self, coin, amount, price):
         """Buy coins.
@@ -119,7 +129,6 @@ class Gemini(common.ExchangeBase):
         :param response: request response
         :raises: RuntimeError if request failed
         """
-        super().handle(endpoint, response)
         if response.status_code != 200:  # 200 OK status
             reason = response.json().get('reason', '<None>')
             message = response.json().get('message', '<None>')

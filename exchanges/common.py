@@ -21,6 +21,15 @@ class ExchangeBase:
         """
         raise NotImplementedError
 
+    def price(self, coin):
+        """Get price of individual coin.
+
+        :param coin: name of coins
+        :returns: price dict in format {'ask': 101.0, 'bid': 100.0}
+        """
+        if coin not in constants.SUPPORTED_COINS:
+            raise RuntimeError(f'coin {coin} not supported')
+
     def buy(self, coin, amount, price):
         """Buy coins.
 
@@ -56,4 +65,8 @@ class ExchangeBase:
         :param response: request response
         :raises: RuntimeError if request failed
         """
-        time.sleep(constants.API_DELAY_SEC)  # avoid getting throttled
+        raise NotImplementedError
+
+    def throttle(self):
+        """Pause to avoid getting throttled."""
+        time.sleep(constants.API_DELAY_SEC)

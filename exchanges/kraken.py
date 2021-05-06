@@ -21,13 +21,9 @@ class Kraken(common.ExchangeBase):
         :returns: price dict in format {'bitcoin': {'ask': 101.0, 'bid': 100.0}}
         """
         prices = {}
-        endpoint = 'Ticker'
         for coin in constants.SUPPORTED_COINS:
-            pair = constants.KRAKEN_COIN_TO_PAIR[coin]
-            response = KRAKEN.query_public(endpoint, data={'pair': pair})
-            self.handle(endpoint, response)
-            prices[coin] = {'ask': float(response.get('result').get(pair).get('a')[0]),
-                            'bid': float(response.get('result').get(pair).get('b')[0])}
+            prices[coin] = self.price(coin)
+            self.throttle()
         return prices
 
     @property
@@ -45,7 +41,23 @@ class Kraken(common.ExchangeBase):
         for ticker, coin in constants.KRAKEN_TICKER_TO_COIN.items():
             if coin in constants.SUPPORTED_COINS or coin == 'dollar':
                 balances[coin] = float(response.get('result').get(ticker, 0.0))
+                self.throttle()
         return balances
+
+    def price(self, coin):
+        """Get price of individual coin.
+
+        https://docs.kraken.com/rest/#operation/getTickerInformation
+
+        :param coin: name of coins
+        :returns: price dict in format {'ask': 101.0, 'bid': 100.0}
+        """
+        endpoint = 'Ticker'
+        pair = constants.KRAKEN_COIN_TO_PAIR[coin]
+        response = KRAKEN.query_public(endpoint, data={'pair': pair})
+        self.handle(endpoint, response)
+        return {'ask': float(response.get('result').get(pair).get('a')[0]),
+                'bid': float(response.get('result').get(pair).get('b')[0])}
 
     def buy(self, coin, amount, price):
         """Buy coins.
@@ -100,6 +112,5 @@ class Kraken(common.ExchangeBase):
         :param response: request response
         :raises: RuntimeError if request failed
         """
-        super().handle(endpoint, response)
         if response.get('error') or 'result' not in response:
             raise RuntimeError(f'Kraken {endpoint} request failed: {response.get("error", "<unknown>")}')
