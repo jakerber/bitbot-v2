@@ -149,4 +149,4 @@ class Gemini(common.ExchangeBase):
 
         :returns: nonce value
         """
-        return str(int(time.mktime(datetime.datetime.now().timetuple()) * 1000))
+        return str(int(1000 * time.time()))
