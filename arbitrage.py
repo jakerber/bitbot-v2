@@ -12,6 +12,7 @@ EXCHANGES = [
 ]
 AMOUNT_PRECISION = 5
 PRICE_PRECISION = 1
+GAIN_PRECISION = 4
 
 class Arbitrage:
     """Arbitrage trade class."""
@@ -22,7 +23,7 @@ class Arbitrage:
         self.askPrice = round(askPrice, PRICE_PRECISION)
         self.exchangeBid = exchangeBid
         self.bidPrice = round(bidPrice, PRICE_PRECISION)
-        self.gain = gain
+        self.gain = round(gain, GAIN_PRECISION)
 
     def execute(self):
         """Execute trades in seperate threads."""
@@ -36,7 +37,7 @@ class Arbitrage:
         """String representation of object."""
         buyName = type(self.exchangeAsk).__name__
         sellName = type(self.exchangeBid).__name__
-        return f'{buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice}'
+        return f'{buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice} (+{self.gain * 100}%)'
 
 def execute():
     """Execute arbitrage across exchanges.
@@ -77,7 +78,7 @@ def execute():
                 unrealizedGain = round((pricesB.get('bid') - pricesA.get('ask')) / pricesA.get('ask'), 4)
                 if pricesA.get('ask') < pricesB.get('bid') and \
                    unrealizedGain >= constants.TRADE_ARBITRAGE_THRESHOLD and \
-                   unrealizedGain > bestOp.gain:
+                   (not bestOp or unrealizedGain > bestOp.gain):
                     bestOp = Arbitrage(coin,
                                        exchangeA,
                                        pricesA.get('ask'),
@@ -92,7 +93,7 @@ def execute():
             except RuntimeError as error:
                 print(f'unable to execute {coin} trade: {repr(error)}')
             else:
-                arbitrageReport[coin].append(str(arbitrage))
+                arbitrageReport[coin].append(str(bestOp))
 
         # pause before moving to next coin
         time.sleep(constants.API_DELAY_SEC)
