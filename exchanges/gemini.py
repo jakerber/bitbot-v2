@@ -56,7 +56,8 @@ class Gemini(common.ExchangeBase):
         balanceInfo = {balance.get('currency'): balance.get('amount')
                        for balance in response.json()}
         for ticker, coin in constants.GEMINI_TICKER_TO_COIN.items():
-            balances[coin] = float(balanceInfo.get(ticker, 0.0))
+            if coin in constants.SUPPORTED_COINS or coin == 'dollar':
+                balances[coin] = float(balanceInfo.get(ticker, 0.0))
         return balances
 
     def buy(self, coin, amount, price):

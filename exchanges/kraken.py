@@ -43,7 +43,8 @@ class Kraken(common.ExchangeBase):
         response = KRAKEN.query_private(endpoint)
         self.handle(endpoint, response)
         for ticker, coin in constants.KRAKEN_TICKER_TO_COIN.items():
-            balances[coin] = float(response.get('result').get(ticker, 0.0))
+            if coin in constants.SUPPORTED_COINS or coin == 'dollar':
+                balances[coin] = float(response.get('result').get(ticker, 0.0))
         return balances
 
     def buy(self, coin, amount, price):

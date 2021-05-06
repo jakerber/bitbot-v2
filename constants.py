@@ -3,7 +3,7 @@ import os
 
 # global variables
 ALLOW_TRADING = os.getenv('ALLOW_TRADING') == 'True'
-API_DELAY_SEC = 0.5
+API_DELAY_SEC = 0.1
 SUPPORTED_COINS = [
     'bitcoin',
     # 'ethereum',

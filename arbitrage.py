@@ -1,5 +1,6 @@
 """Cryptocurrency arbitrage module."""
 import constants
+import datetime
 import threading
 import time
 from exchanges import gemini
@@ -45,6 +46,7 @@ def execute():
     :return: report of analysis as dict
     """
     prices = {coin: {} for coin in constants.SUPPORTED_COINS}
+    priceReport = {}
     for exchange in EXCHANGES:
         exchangeName = type(exchange).__name__
 
@@ -58,6 +60,11 @@ def execute():
         else:
             for coin, price in exchangePrices.items():
                 prices[coin][exchange] = price
+
+                # serialize exchange object
+                if coin not in priceReport:
+                    priceReport[coin] = []
+                priceReport[coin].append({exchangeName: price})
 
     # detect arbitrage opportunities (ask < bid)
     arbitrages = {}
@@ -95,4 +102,7 @@ def execute():
                 balances[coin] = 0.0
             balances[coin] += balance
 
-    return {'arbitrage': arbitrages, 'balance': balances}
+    return {'arbitrage': arbitrages,
+            'balance': balances,
+            'price': priceReport,
+            'datetime': str(datetime.datetime.now())}
