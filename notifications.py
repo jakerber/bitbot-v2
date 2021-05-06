@@ -1,4 +1,4 @@
-"""Notification module."""
+"""Notifications module."""
 import constants
 import requests
 
