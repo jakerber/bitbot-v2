@@ -130,8 +130,12 @@ class Gemini(common.ExchangeBase):
         """
         super().handle(endpoint, response)
         if response.status_code != 200:  # 200 OK status
-            reason = response.json().get('reason', '<None>')
-            message = response.json().get('message', '<None>')
+            try:
+                responseJson = response.json()
+            except ValueError as error:  # JSONDecodeError
+                raise RuntimeError(f'Gemini {endpoint} request failed: {repr(error)} ({response.status_code})')
+            reason = responseJson.get('reason', '<None>')
+            message = responseJson.get('message', '<None>')
             raise RuntimeError(f'Gemini {endpoint} request failed with {reason}: {message} ({response.status_code})')
         elif type(response.json()) == dict and response.json().get('is_cancelled', False):
             raise RuntimeError(f'Gemini {endpoint} request failed: order cancelled (unable to fill?)')

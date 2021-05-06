@@ -23,7 +23,7 @@ class Arbitrage:
         self.askPrice = round(askPrice, PRICE_PRECISION)
         self.exchangeBid = exchangeBid
         self.bidPrice = round(bidPrice, PRICE_PRECISION)
-        self.gain = round(gain, GAIN_PRECISION)
+        self.gain = gain
 
     def execute(self):
         """Execute trades in seperate threads."""
@@ -37,7 +37,7 @@ class Arbitrage:
         """String representation of object."""
         buyName = type(self.exchangeAsk).__name__
         sellName = type(self.exchangeBid).__name__
-        return f'{buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice} (+{self.gain * 100}%)'
+        return f'{buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice} (+{round(self.gain * 100, GAIN_PRECISION)}%)'
 
 def execute():
     """Execute arbitrage across exchanges.
