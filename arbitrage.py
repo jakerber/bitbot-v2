@@ -105,4 +105,4 @@ def execute():
     return {'arbitrage': arbitrages,
             'balance': balances,
             'price': priceReport,
-            'datetime': str(datetime.datetime.now())}
+            'datetime': str(datetime.datetime.utcnow())}

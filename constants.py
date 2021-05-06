@@ -2,6 +2,7 @@
 import os
 
 # global variables
+PROD_ENV = os.getenv('PROD_ENV') == 'True'
 ALLOW_TRADING = os.getenv('ALLOW_TRADING') == 'True'
 API_DELAY_SEC = 0.1
 SUPPORTED_COINS = [
