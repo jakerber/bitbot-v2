@@ -22,12 +22,29 @@ class Kraken(common.ExchangeBase):
         """
         prices = {}
         endpoint = 'Ticker'
-        for coin, ticker in constants.KRAKEN_COIN_TO_TICKER.items():
-            response = KRAKEN.query_public(endpoint, data={'pair': ticker})
+        for coin in constants.SUPPORTED_COINS:
+            pair = constants.KRAKEN_COIN_TO_PAIR[coin]
+            response = KRAKEN.query_public(endpoint, data={'pair': pair})
             self.handle(endpoint, response)
-            prices[coin] = {'ask': float(response.get('result').get(ticker).get('a')[0]),
-                            'bid': float(response.get('result').get(ticker).get('b')[0])}
+            prices[coin] = {'ask': float(response.get('result').get(pair).get('a')[0]),
+                            'bid': float(response.get('result').get(pair).get('b')[0])}
         return prices
+
+    @property
+    def balances(self):
+        """Coin account balances.
+
+        https://docs.kraken.com/rest/#operation/getAccountBalance
+
+        :returns: balances dict in format {'usd': 50.0, 'bitcoin': 2.0}
+        """
+        balances = {}
+        endpoint = 'Balance'
+        response = KRAKEN.query_private(endpoint)
+        self.handle(endpoint, response)
+        for ticker, coin in constants.KRAKEN_TICKER_TO_COIN.items():
+            balances[coin] = float(response.get('result').get(ticker, 0.0))
+        return balances
 
     def buy(self, coin, amount, price):
         """Buy coins.
@@ -41,7 +58,7 @@ class Kraken(common.ExchangeBase):
         """
         super().buy(coin, amount, price)
         endpoint = 'AddOrder'
-        ticker = constants.KRAKEN_COIN_TO_TICKER[coin]
+        ticker = constants.KRAKEN_COIN_TO_PAIR[coin]
         payload = {
             'pair': ticker,
             'type': 'buy',
@@ -64,7 +81,7 @@ class Kraken(common.ExchangeBase):
         """
         super().sell(coin, amount, price)
         endpoint = 'AddOrder'
-        ticker = constants.KRAKEN_COIN_TO_TICKER[coin]
+        ticker = constants.KRAKEN_COIN_TO_PAIR[coin]
         payload = {
             'pair': ticker,
             'type': 'sell',

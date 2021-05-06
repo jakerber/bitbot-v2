@@ -18,17 +18,29 @@ TRADE_INTERVAL_SEC = int(os.getenv('TRADE_INTERVAL_SEC'))
 # Gemini API
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 GEMINI_API_SECRET = os.getenv('GEMINI_API_SECRET')
-GEMINI_COIN_TO_TICKER = {
+GEMINI_COIN_TO_PAIR = {
     'bitcoin': 'BTCUSD',
-    # 'ethereum': 'ETHUSD',
-    # 'litecoin': 'LTCUSD'
+    'ethereum': 'ETHUSD',
+    'litecoin': 'LTCUSD'
+}
+GEMINI_TICKER_TO_COIN = {
+    'USD': 'dollar',
+    'BTC': 'bitcoin',
+    'ETH': 'ethereum',
+    'LTC': 'litecoin'
 }
 
 # Kraken API
 KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY')
 KRAKEN_API_SECRET = os.getenv('KRAKEN_API_SECRET')
-KRAKEN_COIN_TO_TICKER = {
+KRAKEN_COIN_TO_PAIR = {
     'bitcoin': 'XXBTZUSD',
-    # 'ethereum': 'XETHZUSD',
-    # 'litecoin': 'XLTCZUSD'
+    'ethereum': 'XETHZUSD',
+    'litecoin': 'XLTCZUSD'
+}
+KRAKEN_TICKER_TO_COIN = {
+    'ZUSD': 'dollar',
+    'XXBT': 'bitcoin',
+    'XETH': 'ethereum',
+    'XLTC': 'litecoin'
 }

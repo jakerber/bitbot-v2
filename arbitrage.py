@@ -1,6 +1,7 @@
 """Cryptocurrency arbitrage module."""
 import constants
 import threading
+import time
 from exchanges import gemini
 from exchanges import kraken
 
@@ -29,12 +30,13 @@ class Arbitrage:
                          args=(self.coin, tradeAmount, self.askPrice)).start()
         threading.Thread(target=self.exchangeBid.sell,
                          args=(self.coin, tradeAmount, self.bidPrice)).start()
+        time.sleep(constants.API_DELAY_SEC)  # avoid duplicate nonce
 
     def __str__(self):
         """String representation of object."""
         buyName = type(self.exchangeAsk).__name__
         sellName = type(self.exchangeBid).__name__
-        return f'{self.coin}: {buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice}'
+        return f'{buyName} buy @ {self.askPrice}, {sellName} sell @ {self.bidPrice}'
 
 
 def execute():
@@ -58,7 +60,7 @@ def execute():
                 prices[coin][exchange] = price
 
     # detect arbitrage opportunities (ask < bid)
-    arbitrages = []
+    arbitrages = {}
     for coin, exchanges in prices.items():
         for exchangeA, pricesA in exchanges.items():
             for exchangeB, pricesB in exchanges.items():
@@ -81,6 +83,16 @@ def execute():
                     except RuntimeError as error:
                         print(f'unable to execute trade: {repr(error)}')
                     else:
-                        arbitrages.append(str(arbitrage))
+                        if coin not in arbitrages:
+                            arbitrages[coin] = []
+                        arbitrages[coin].append(str(arbitrage))
 
-    return arbitrages
+    # fetch balances across exchanges
+    balances = {}
+    for exchange in EXCHANGES:
+        for coin, balance in exchange.balances.items():
+            if coin not in balances:
+                balances[coin] = 0.0
+            balances[coin] += balance
+
+    return {'arbitrage': arbitrages, 'balance': balances}

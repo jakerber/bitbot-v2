@@ -29,12 +29,35 @@ class Gemini(common.ExchangeBase):
         """
         prices = {}
         endpoint = 'v2/ticker/'
-        for coin, ticker in constants.GEMINI_COIN_TO_TICKER.items():
-            response = requests.get(BASE_URL + endpoint + ticker)
+        for coin in constants.SUPPORTED_COINS:
+            pair = constants.GEMINI_COIN_TO_PAIR[coin]
+            response = requests.get(BASE_URL + endpoint + pair)
             self.handle(endpoint, response)
             prices[coin] = {'ask': float(response.json().get('ask')),
                             'bid': float(response.json().get('bid'))}
         return prices
+
+    @property
+    def balances(self):
+        """Coin account balances.
+
+        https://docs.gemini.com/rest-api/#get-available-balances
+
+        :returns: balances dict in format {'usd': 50.0, 'bitcoin': 2.0}
+        """
+        balances = {}
+        endpoint = '/v1/balances'
+        payload = {
+            'request': endpoint,
+            'nonce': self._getNonce()
+        }
+        response = requests.post(BASE_URL + endpoint, headers=self._getHeaders(payload))
+        self.handle(endpoint, response)
+        balanceInfo = {balance.get('currency'): balance.get('amount')
+                       for balance in response.json()}
+        for ticker, coin in constants.GEMINI_TICKER_TO_COIN.items():
+            balances[coin] = float(balanceInfo.get(ticker, 0.0))
+        return balances
 
     def buy(self, coin, amount, price):
         """Buy coins.
@@ -51,12 +74,11 @@ class Gemini(common.ExchangeBase):
         payload = {
             'request': endpoint,
             'nonce': self._getNonce(),
-            'symbol': constants.GEMINI_COIN_TO_TICKER[coin],
+            'symbol': constants.GEMINI_COIN_TO_PAIR[coin],
             'price': price,
             'amount': amount,
             'side': 'buy',
-            'type': 'exchange limit',
-            'options': ['fill-or-kill']
+            'type': 'exchange limit'
         }
         response = requests.post(BASE_URL + endpoint,
                                  data=None,
@@ -78,12 +100,11 @@ class Gemini(common.ExchangeBase):
         payload = {
             'request': endpoint,
             'nonce': self._getNonce(),
-            'symbol': constants.GEMINI_COIN_TO_TICKER[coin],
+            'symbol': constants.GEMINI_COIN_TO_PAIR[coin],
             'price': price,
             'amount': amount,
             'side': 'sell',
-            'type': 'exchange limit',
-            'options': ['fill-or-kill']
+            'type': 'exchange limit'
         }
         response = requests.post(BASE_URL + endpoint,
                                  data=None,
@@ -102,7 +123,7 @@ class Gemini(common.ExchangeBase):
             reason = response.json().get('reason', '<None>')
             message = response.json().get('message', '<None>')
             raise RuntimeError(f'Gemini {endpoint} request failed with {reason}: {message} ({response.status_code})')
-        elif response.json().get('is_cancelled', False):
+        elif type(response.json()) == dict and response.json().get('is_cancelled', False):
             raise RuntimeError(f'Gemini {endpoint} request failed: order cancelled (unable to fill?)')
 
     def _getHeaders(self, payload):

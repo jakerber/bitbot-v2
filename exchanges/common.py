@@ -13,6 +13,14 @@ class ExchangeBase:
         """
         raise NotImplementedError
 
+    @property
+    def balances(self):
+        """Coin account balances.
+
+        :returns: balances dict in format {'usd': 50.0, 'bitcoin': 2.0}
+        """
+        raise NotImplementedError
+
     def buy(self, coin, amount, price):
         """Buy coins.
 
