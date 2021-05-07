@@ -61,7 +61,7 @@ def execute():
             try:
                 price = exchange.price(coin)
             except RuntimeError as error:
-                print(f'{exchangeName} failed to fetch {coin} price: {repr(error)}')
+                print(f'{type(exchange).__name__} failed to fetch {coin} price: {repr(error)}')
             else:
                 prices[coin][exchange] = price
                 priceReport[coin].append({type(exchange).__name__: price})
