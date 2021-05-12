@@ -16,6 +16,7 @@ API_KEY = constants.GEMINI_API_KEY
 API_SECRET = constants.GEMINI_API_SECRET
 BASE_URL = 'https://api.gemini.com/'
 
+
 class Gemini(common.ExchangeBase):
     """Gemini exchange class."""
 
@@ -25,7 +26,7 @@ class Gemini(common.ExchangeBase):
 
         https://docs.gemini.com/rest-api/#ticker-v2
 
-        :returns: price dict in format {'bitcoin': {'ask': 101.0, 'bid': 100.0}}
+        :returns: price dict in format {'bitcoin': {'ask': 11.0, 'bid': 10.0}}
         """
         prices = {}
         for coin in constants.SUPPORTED_COINS:
@@ -47,7 +48,8 @@ class Gemini(common.ExchangeBase):
             'request': endpoint,
             'nonce': self._getNonce()
         }
-        response = requests.post(BASE_URL + endpoint, headers=self._getHeaders(payload))
+        response = requests.post(BASE_URL + endpoint,
+                                 headers=self._getHeaders(payload))
         self.handle(endpoint, response)
         balanceInfo = {balance.get('currency'): balance.get('amount')
                        for balance in response.json()}
@@ -133,12 +135,17 @@ class Gemini(common.ExchangeBase):
             try:
                 responseJson = response.json()
             except ValueError as error:  # JSONDecodeError
-                raise RuntimeError(f'Gemini {endpoint} request failed: {repr(error)} ({response.status_code})')
+                raise RuntimeError(
+                    f'Gemini {endpoint} request failed: {repr(error)} '
+                    f'({response.status_code})')
             reason = responseJson.get('reason', '<None>')
             message = responseJson.get('message', '<None>')
-            raise RuntimeError(f'Gemini {endpoint} request failed with {reason}: {message} ({response.status_code})')
-        elif type(response.json()) == dict and response.json().get('is_cancelled', False):
-            raise RuntimeError(f'Gemini {endpoint} request failed: order cancelled (unable to fill?)')
+            raise RuntimeError(f'Gemini {endpoint} request failed with '
+                               f'{reason}: {message} ({response.status_code})')
+        elif type(response.json()) == dict and response.json().get(
+                'is_cancelled', False):
+            raise RuntimeError(f'Gemini {endpoint} request failed: '
+                               'order cancelled (unable to fill?)')
 
     def _getHeaders(self, payload):
         """Generate API request headers.
@@ -148,7 +155,9 @@ class Gemini(common.ExchangeBase):
         """
         encodedPayload = json.dumps(payload).encode()
         b64Payload = base64.b64encode(encodedPayload)
-        signature = hmac.new(API_SECRET.encode(), b64Payload, hashlib.sha384).hexdigest()
+        signature = hmac.new(API_SECRET.encode(),
+                             b64Payload,
+                             hashlib.sha384).hexdigest()
         return {
             'Content-Type': 'text/plain',
             'Content-Length': '0',

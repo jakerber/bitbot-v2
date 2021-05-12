@@ -3,6 +3,7 @@ import constants
 import datetime
 import time
 
+
 class ExchangeBase:
     """Base class for exchanges."""
 
@@ -10,7 +11,7 @@ class ExchangeBase:
     def prices(self):
         """Coin prices.
 
-        :returns: price dict in format {'bitcoin': {'ask': 101.0, 'bid': 100.0}}
+        :returns: price dict in format {'bitcoin': {'ask': 11.0, 'bid': 10.0}}
         """
         raise NotImplementedError
 
@@ -43,7 +44,8 @@ class ExchangeBase:
             raise RuntimeError(f'coin {coin} not supported')
         if not constants.ALLOW_TRADING:
             raise RuntimeError('trading not allowed')
-        print(f'{type(self).__name__} executing buy of {amount} {coin} @ {price}')
+        print(f'{type(self).__name__} executing buy of '
+              f'{amount} {coin} @ {price}')
 
     def sell(self, coin, amount, price):
         """Sell coins.
@@ -57,7 +59,8 @@ class ExchangeBase:
             raise RuntimeError(f'coin {coin} not supported')
         if not constants.ALLOW_TRADING:
             raise RuntimeError('trading not allowed')
-        print(f'{type(self).__name__} executing sell of {amount} {coin} @ {price}')
+        print(f'{type(self).__name__} executing sell of '
+              f'{amount} {coin} @ {price}')
 
     def handle(self, endpoint, response):
         """Common API response handling.
@@ -67,7 +70,8 @@ class ExchangeBase:
         :raises: RuntimeError if request failed
         """
         if not constants.PROD_ENV:
-            print(f'{str(datetime.datetime.utcnow())}: {type(self).__name__} executed {endpoint}')
+            print(f'{str(datetime.datetime.utcnow())}: {type(self).__name__} '
+                  f'executed {endpoint}')
 
     def throttle(self):
         """Pause to avoid getting throttled."""

@@ -1,8 +1,12 @@
-"""BitBot web app."""
+"""BitBot web app.
+
+Not used by core BitBot runner.
+"""
 import flask
 
 # initialize flask app
 app = flask.Flask(__name__)
+
 
 @app.route('/')
 def root():

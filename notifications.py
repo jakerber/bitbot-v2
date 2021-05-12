@@ -4,19 +4,23 @@ import requests
 
 BASE_URL = 'https://api.mailgun.net/v3/'
 
+
 def email(subject, body):
     """Send an email notification.
 
     :param alert: name of alert
     :param body: email contents
     """
+    fromHeader = f'BitBot v2 Notifier <noreply@{constants.MAILGUN_DOMAIN}>'
+
     # send via Mailgun
-    response = requests.post(BASE_URL + constants.MAILGUN_DOMAIN + '/messages',
-                             auth=('api', constants.MAILGUN_API_KEY),
-                             data={'from': f'BitBot v2 Notifier <noreply@{constants.MAILGUN_DOMAIN}>',
-                                   'to': [constants.EMAIL_ADDRESS],
-                                   'subject': subject,
-                                   'text': body})
+    response = requests.post(
+        BASE_URL + constants.MAILGUN_DOMAIN + '/messages',
+        auth=('api', constants.MAILGUN_API_KEY),
+        data={'from': fromHeader,
+              'to': [constants.EMAIL_ADDRESS],
+              'subject': subject,
+              'text': body})
 
     # handle failure
     if response.status_code != 200:

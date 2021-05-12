@@ -9,6 +9,7 @@ from exchanges import common
 KRAKEN = krakenex.API(key=constants.KRAKEN_API_KEY,
                       secret=constants.KRAKEN_API_SECRET)
 
+
 class Kraken(common.ExchangeBase):
     """Kraken exchange class."""
 
@@ -18,7 +19,7 @@ class Kraken(common.ExchangeBase):
 
         https://docs.kraken.com/rest/#operation/getTickerInformation
 
-        :returns: price dict in format {'bitcoin': {'ask': 101.0, 'bid': 100.0}}
+        :returns: price dict in format {'bitcoin': {'ask': 11.0, 'bid': 10.0}}
         """
         prices = {}
         for coin in constants.SUPPORTED_COINS:
@@ -113,4 +114,5 @@ class Kraken(common.ExchangeBase):
         """
         super().handle(endpoint, response)
         if response.get('error') or 'result' not in response:
-            raise RuntimeError(f'Kraken {endpoint} request failed: {response.get("error", "<unknown>")}')
+            raise RuntimeError(f'Kraken {endpoint} request failed: '
+                               f'{response.get("error", "<unknown>")}')

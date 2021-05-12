@@ -5,6 +5,7 @@ import json
 import notifications
 import time
 
+
 def run():
     """Run BitBot."""
     while True:
